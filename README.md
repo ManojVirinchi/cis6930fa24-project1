@@ -96,5 +96,6 @@ The project includes test files to validate each redaction method. These tests e
   - Redaction using spaCy entities can sometimes result in false positives if a term closely matches the entity type (e.g., "Washington" as both a name and location).
   - When we use ORG as the entity for detecting various organisation names , it is also detecting various non-organisation names as names and redacting it. So I have not considered the ORG entity
   - If the address is starting with number like `3800 Main St` it is not redacting the number as the spacy model is not recognising that as a address.
+  - If the concept word is present in a link like "www.winelibrary.com" it will not redact wine in that.
 
 

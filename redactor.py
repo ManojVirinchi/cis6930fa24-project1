@@ -152,37 +152,40 @@ class Redactor:
         for concept in concepts:
             
             synonyms = self.get_synonyms(concept)
-            
             terms_to_redact = [concept] + synonyms
 
-            sentences_redacted = 0
+            # Initialize the concept count if not already present
+            if concept not in self.stats["concepts"]:
+                self.stats["concepts"][concept] = 0
 
             for sent in doc.sents:
-                should_redact = False
+                redactions_in_sentence = 0  # Track the number of individual redactions for this sentence
 
-                
-                if any(re.search(r'\b' + re.escape(term) + r'\b', sent.text, re.IGNORECASE) for term in terms_to_redact):
-                    should_redact = True
+                # Check for exact matches with each term
+                for term in terms_to_redact:
+                    matches = re.findall(r'\b' + re.escape(term) + r'\b', sent.text, re.IGNORECASE)
+                    redactions_in_sentence += len(matches)  # Count exact matches
 
-                
-                if not should_redact:
+                # If no exact matches, calculate similarity for conceptual redaction
+                if redactions_in_sentence == 0:
                     sent_doc = self.nlp(sent.text)
                     if sent_doc.vector_norm:
-                        max_similarity = max(sent_doc.similarity(self.nlp(term)) for term in terms_to_redact if self.nlp(term).vector_norm)
-                        if max_similarity > 0.6:  # Adjust threshold as needed
-                            should_redact = True
+                        for term in terms_to_redact:
+                            term_doc = self.nlp(term)
+                            if term_doc.vector_norm and sent_doc.similarity(term_doc) > 0.6:
+                                redactions_in_sentence += 1
+                                break  # Redact the sentence only once if similar match found
 
-                if should_redact:
+                # Apply redaction if any matches found and update the redacted text
+                if redactions_in_sentence > 0:
                     start = sent.start_char
                     end = sent.end_char
                     redacted_text = redacted_text[:start] + "█" * (end - start) + redacted_text[end:]
-                    sentences_redacted += 1
-
-            if sentences_redacted > 0:
-                self.stats["concepts"][concept] = sentences_redacted
+                    self.stats["concepts"][concept] += redactions_in_sentence  # Add all individual matches
 
         return redacted_text
-    
+
+        
 
 
     def process_file(self, file_path, flags, concepts):

@@ -1,0 +1,45 @@
+      def get_synonyms(self, term):
+        synonyms = set()
+        for syn in wordnet.synsets(term):
+            for lemma in syn.lemmas():
+                synonyms.add(lemma.name())
+        synonyms.add(term + 's')
+        return list(synonyms)
+    
+    def redact_concept(self, text, concepts):
+        doc = self.nlp(text)
+        redacted_text = text
+
+        for concept in concepts:
+            # Find synonyms for the concept
+            synonyms = self.get_synonyms(concept)
+            # Include the original concept in the list
+            terms_to_redact = [concept] + synonyms
+
+            for term in terms_to_redact:
+                term_doc = self.nlp(term)
+                sentences_redacted = 0
+
+                for sent in doc.sents:
+                    should_redact = False
+
+                    # Check for exact matches (case-insensitive)
+                    if re.search(r'\b' + re.escape(term) + r'\b', sent.text, re.IGNORECASE):
+                        should_redact = True
+
+                    # Check for semantic similarity if vectors are available
+                    if not should_redact and sent.vector_norm and term_doc.vector_norm:
+                        similarity = sent.similarity(term_doc)
+                        if similarity > 0.6:  # Adjust threshold as needed
+                            should_redact = True
+
+                    if should_redact:
+                        start = sent.start_char
+                        end = sent.end_char
+                        redacted_text = redacted_text[:start] + "█" * (end - start) + redacted_text[end:]
+                        sentences_redacted += 1
+
+                if sentences_redacted > 0:
+                    self.stats["concepts"][term] = sentences_redacted
+
+        return redacted_text

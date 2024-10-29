@@ -1,0 +1,6 @@
+names: 4
+dates: 0
+phones: 0
+addresses: 0
+emails: 0
+concepts: {'house': 1}

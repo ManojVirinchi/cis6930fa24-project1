@@ -64,7 +64,7 @@ Each sensitive data type is redacted through a dedicated method within the `Reda
 #### `redact_concept`
 - **Description**: Uses NLP to identify sentences containing specified concepts, and then redacts the entire sentence. Each concept's synonyms (using `nltk.wordnet`) are also used to broaden the redaction scope. This method is sensitive to plural forms and similar words for broader coverage.
 - **Example**: Given the concept `"wine"`, sentences with "wine" or synonyms like "beverage" or pluralized forms ("wines") are redacted.
-- **Special Handling**: Sentences containing both specified concepts and certain context-specific words like "these" are also redacted to ensure comprehensive contextual redaction.
+- **Special Handling**: Sentences containing both specified concepts and certain context-specific words like "these" are also redacted to ensure comprehensive contextual redaction and next line characters are also being preserved.
 
 #### `redact_preserving_special_chars`
 - **Description**: Maintains special characters while redacting sensitive content within names, dates, or addresses. Characters such as commas, periods, and dashes are preserved.

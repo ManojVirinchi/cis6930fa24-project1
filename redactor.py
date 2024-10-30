@@ -146,45 +146,46 @@ class Redactor:
         return list(synonyms)
     
     def redact_concept(self, text, concepts):
-        doc = self.nlp(text)
-        redacted_text = text
+        lines = text.split('\n')
+        redacted_lines = []
 
-        for concept in concepts:
-            
-            synonyms = self.get_synonyms(concept)
-            terms_to_redact = [concept] + synonyms
+        for line in lines:
+            doc = self.nlp(line)
+            redacted_line = line
 
-            # Initialize the concept count if not already present
-            if concept not in self.stats["concepts"]:
-                self.stats["concepts"][concept] = 0
+            for concept in concepts:
+                synonyms = self.get_synonyms(concept)
+                terms_to_redact = [concept] + synonyms
 
-            for sent in doc.sents:
-                redactions_in_sentence = 0  # Track the number of individual redactions for this sentence
+                if concept not in self.stats["concepts"]:
+                    self.stats["concepts"][concept] = 0
 
-                # Check for exact matches with each term
-                for term in terms_to_redact:
-                    matches = re.findall(r'\b' + re.escape(term) + r'\b', sent.text, re.IGNORECASE)
-                    redactions_in_sentence += len(matches)  # Count exact matches
+                for sent in doc.sents:
+                    redactions_in_sentence = 0
 
-                # If no exact matches, calculate similarity for conceptual redaction
-                if redactions_in_sentence == 0:
-                    sent_doc = self.nlp(sent.text)
-                    if sent_doc.vector_norm:
-                        for term in terms_to_redact:
-                            term_doc = self.nlp(term)
-                            if term_doc.vector_norm and sent_doc.similarity(term_doc) > 0.6:
-                                redactions_in_sentence += 1
-                                break  # Redact the sentence only once if similar match found
+                    for term in terms_to_redact:
+                        matches = re.findall(r'\b' + re.escape(term) + r'\b', sent.text, re.IGNORECASE)
+                        redactions_in_sentence += len(matches)
 
-                # Apply redaction if any matches found and update the redacted text
-                if redactions_in_sentence > 0:
-                    start = sent.start_char
-                    end = sent.end_char
-                    redacted_text = redacted_text[:start] + "█" * (end - start) + redacted_text[end:]
-                    self.stats["concepts"][concept] += redactions_in_sentence  # Add all individual matches
+                    if redactions_in_sentence == 0:
+                        sent_doc = self.nlp(sent.text)
+                        if sent_doc.vector_norm:
+                            for term in terms_to_redact:
+                                term_doc = self.nlp(term)
+                                if term_doc.vector_norm and sent_doc.similarity(term_doc) > 0.6:
+                                    redactions_in_sentence += 1
+                                    break
 
-        return redacted_text
+                    if redactions_in_sentence > 0:
+                        start = sent.start_char
+                        end = sent.end_char
+                        redacted_sentence = '█' * (end - start)
+                        redacted_line = redacted_line[:start] + redacted_sentence + redacted_line[end:]
+                        self.stats["concepts"][concept] += redactions_in_sentence
 
+            redacted_lines.append(redacted_line)
+
+        return '\n'.join(redacted_lines)
         
 
 
@@ -208,9 +209,9 @@ class Redactor:
             if concepts:
                 line = self.redact_concept(line, concepts)
             
-            redacted_content.append(line)  # Add the processed line to the list
+            redacted_content.append(line)  
 
-        return ''.join(redacted_content)  # Join lines to keep original structure
+        return ''.join(redacted_content)  
 
 
 

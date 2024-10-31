@@ -71,7 +71,7 @@ Each sensitive data type is redacted through a dedicated method within the `Reda
 
 ### Test Case Files
 
-The project includes test files to validate each redaction method. These tests ensure accurate detection and redaction of sensitive data, including edge cases. Below are descriptions of each test file:
+The project includes test files to validate each redaction method. 
 
 - **`test_redact_address.py`**: Ensures the `redact_address` function accurately detects and redacts various address formats.
 - **`test_redact_concepts.py`**: Ensures `redact_concept` accurately redacts sentences containing specified concepts and their synonyms.
@@ -91,7 +91,7 @@ The project includes test files to validate each redaction method. These tests e
   - The code uses case-insensitive matching for names, dates, and concepts. This assumes that sensitive information could appear in any case, so it attempts to capture all variations without distinguishing between uppercase and lowercase letters.
   
 
-- **Known Bugs**:
+- **Bugs**:
   - Synonyms detection may not catch uncommon or highly contextual synonyms.
   - Redaction using spaCy entities can sometimes result in false positives if a term closely matches the entity type (e.g., "Washington" as both a name and location).
   - When we use ORG as the entity for detecting various organisation names , it is also detecting various non-organisation names as names and redacting it. So I have not considered the ORG entity

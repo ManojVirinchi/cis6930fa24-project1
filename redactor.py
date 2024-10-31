@@ -81,10 +81,10 @@ class Redactor:
 
         # Additional regex patterns for dates
         date_patterns = [
-            r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b',  # Matches formats like 18/06/2001 or 18-06-01
-            r'\b\d{1,2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{2,4}\b',  # Matches formats like 18 Jun
+            r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b',  
+            r'\b\d{1,2}\s(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{2,4}\b',  
             r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{1,2}(?:\s\d{2,4})?\b'
-            r'\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2}\b',  # Matches full month names with day like June 18
+            r'\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2}\b',  
             r'\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b'  
         ]
 
@@ -134,8 +134,6 @@ class Redactor:
 
         return redacted_text
 
-
-   
 
     def get_synonyms(self, term):
         synonyms = set()
@@ -191,7 +189,7 @@ class Redactor:
 
     def process_file(self, file_path, flags, concepts):
         with open(file_path, 'r') as file:
-            content = file.readlines()  # Read lines to preserve line breaks
+            content = file.readlines()  
 
         redacted_content = []
 
@@ -259,7 +257,6 @@ def main():
             except Exception as e:
                 print(f"Error processing file {file_path}: {str(e)}")
 
-    # Write statistics to the specified location
     redactor.write_stats(args.stats)
 
 if __name__ == "__main__":

@@ -215,7 +215,7 @@ class Redactor:
 
     def write_output(self, content, output_dir, file_name):
         os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, f"{file_name}_censored")
+        output_path = os.path.join(output_dir, f"{file_name}.censored")
         
         with open(output_path, 'w') as file:
             file.write(content)
